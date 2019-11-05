@@ -122,8 +122,8 @@ def main():
 
     pol = int(sys.argv[1]) # number of polyhedra to enumerate
 
-    for iteration in range(pol):
-        print('finding polyhedron = ' + str(iteration))
+    for iteration in range(1,pol + 1):
+        print('finding polyhedron ' + str(iteration))
 
         polyhedron = open('./polyhedra/' + str(iteration), 'w')
 
