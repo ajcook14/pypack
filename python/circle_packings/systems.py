@@ -46,7 +46,7 @@ def read_file(f):
     while True:
         string = f.read(15)
 
-        if string == '>>planar_code<<':
+        if string.decode("utf-8") == '>>planar_code<<':
             pass # seek to the next existent graph
         elif string == '':
             return([])

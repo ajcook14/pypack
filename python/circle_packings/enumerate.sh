@@ -9,7 +9,7 @@ let n=$1+2 # convert to number of faces
 let sum=0
 while test $a -le $n
 do
-    ../../plantri/plantri -qc4m3d $a >> ./graphs 2>tmp
+    plantri -qc4m3d $a >> ./graphs 2>tmp
     let a=$a+1
     b=`grep quartic tmp | (read a junk; echo $a)`
     let sum=$sum+$b
@@ -19,7 +19,7 @@ rm tmp
 
 echo "Enumerated ${sum} edge graphs. I am now finding the geometric structures and volumes."
 
-python pack.py $sum
+python3 pack.py $sum
 
 # -q for planar quadrangulations
 # -c4 for 3-connected and no 6-cyclically-edge-connected dual

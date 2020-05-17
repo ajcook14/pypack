@@ -5,7 +5,12 @@ import matplotlib.lines as lines
 import copy
 import systems
 from scipy import integrate
-import cPickle
+
+try:
+    import cPickle
+except ModuleNotFoundError:
+    import pickle as cPickle
+
 import sys
 
 # Care has been taken here not to confuse the namespaces between cmath and math.

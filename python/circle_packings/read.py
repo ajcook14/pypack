@@ -1,4 +1,8 @@
-import cPickle
+try:
+    import cPickle
+except ModuleNotFoundError:
+    import pickle as cPickle
+
 from pack import Polyhedron
 from pack import create_circles
 from pack import real
