@@ -12,6 +12,22 @@ except ModuleNotFoundError:
 
 from angle_structure import AngleStructure
 from queue import Queue
+import cmath
+import matplotlib.pyplot as plt
+
+def real(z):
+    
+    return([z.real, z.imag])
+
+def sum_squares(a_list):
+    
+    value = 0
+    
+    for item in a_list:
+        
+        value += item ** 2
+        
+    return(value)
 
 f = open('./angle_structures/%d'%(int(sys.argv[1])), 'rb')
 
@@ -104,6 +120,24 @@ def find_geometry(graph, faces, adjacency, tetrahedra, adjacency_triangulated, a
             
                 l += 1
     
+    face_angles = []
+    
+    for face_index in range(len(faces)):
+        
+        face_angles = face_angles + [[0] * len(faces[face_index])]
+        
+        for tetrahedron_index in range(len(tetrahedra[face_index])):
+            
+            tetrahedron = tetrahedra[face_index][tetrahedron_index]
+            
+            for corner_index in range(len(tetrahedron)):
+                
+                vertex = tetrahedron[corner_index]
+                
+                vertex_index = search(faces[face_index], vertex)
+                
+                face_angles[face_index][vertex_index] += angled_tetrahedra[face_index][tetrahedron_index][corner_index]
+    
     positions[0] = 'inf'
     
     u = graph[0][0]
@@ -112,9 +146,9 @@ def find_geometry(graph, faces, adjacency, tetrahedra, adjacency_triangulated, a
     
     v = graph[u][index - 1]
     
-    positions[u] = 0
+    positions[u] = 0 + 0 * 1j
     
-    positions[v] = 1
+    positions[v] = 1 + 0 * 1j
     
     edge_lengths[u][v] = 1.0
     
@@ -126,7 +160,7 @@ def find_geometry(graph, faces, adjacency, tetrahedra, adjacency_triangulated, a
     
     while len(queue) > 0:  # breadth first traversal of faces
         
-        #queue.print_queue()
+        queue.print_queue()
         
         face = queue.serve()
         
@@ -413,13 +447,42 @@ def find_geometry(graph, faces, adjacency, tetrahedra, adjacency_triangulated, a
                 tetrahedron_index -= 1
                 
         
-        # find centre and radius of the corresponding circle
-        
-        radii[face] = 1
-        
         # find the positions of the vertices around the current face
         
-        for i in range(len(faces[face]) - 1):
+        i = known_edge[1]
+        
+        vertex = faces[face][i - 1]
+        
+        while vertex != faces[face][known_edge[1]]:
+            
+            edge = positions[faces[face][i]] - positions[faces[face][i - 1]]
+
+            edge = edge / abs(edge)
+
+            edge = edge_lengths[faces[face][i - 2]][vertex] * edge / cmath.exp(1j * face_angles[face][i - 1])
+            
+            positions[faces[face][i - 2]] = positions[vertex] + edge
+            
+            i -= 1
+            
+            vertex = faces[face][i - 1]
+            
+        
+        # find centre and radius of the corresponding circle
+        
+        radii[face] = edge_lengths[faces[face][0]][faces[face][2]] / ( 2 * sin(face_angles[face][1]))
+        
+        triangle = [real(positions[faces[face][0]]), real(positions[faces[face][1]]), real(positions[faces[face][2]])]
+        
+        u_x = (1 / (2 * radii[face])) * (sum_squares(triangle[0]) * (triangle[1][1] - triangle[2][1]) + sum_squares(triangle[1]) * (triangle[2][1] - triangle[0][1]) + sum_squares(triangle[2]) * (triangle[0][1] - triangle[1][1]))
+        
+        u_y = (1 / (2 * radii[face])) * (sum_squares(triangle[0]) * (triangle[2][0] - triangle[1][0]) + sum_squares(triangle[1]) * (triangle[0][0] - triangle[2][0]) + sum_squares(triangle[2]) * (triangle[1][0] - triangle[0][0]))
+        
+        centres[face] = u_x + 1j * u_y
+        
+        # find new neighbors, update queue
+        
+        for i in range(-1, len(faces[face]) - 1):
             
             neighbor = adjacency[faces[face][i + 1]][faces[face][i]]
             
@@ -435,28 +498,47 @@ def find_geometry(graph, faces, adjacency, tetrahedra, adjacency_triangulated, a
                 
                 queue.append(neighbor)
 
-    return(edge_lengths)
+    return(edge_lengths, positions, face_angles, radii, centres)
 
 adjacency = adjacency.tolist()
 
 print('graph = %s'%(angle_structure.graph))
 print('faces = %s'%(faces))
-print('tetrahedra = %s'%(tetrahedra))
+#print('tetrahedra = %s'%(tetrahedra))
 
-edge_lengths = find_geometry(angle_structure.graph, faces, adjacency, tetrahedra, adjacency_triangulated, angle_structure.angles)
+edge_lengths, positions, face_angles, radii, centres = find_geometry(angle_structure.graph, faces, adjacency, tetrahedra, adjacency_triangulated, angle_structure.angles)
 
-print('lengths = %s'%(edge_lengths))
+#print('lengths = %s'%(edge_lengths))
+#print('positions = %s'%(positions))
+#print('face_angles = %s'%(face_angles))
+#print('radii = %s'%(radii))
+#print('centres = %s'%(centres))
 
-print('success = %r'%(angle_structure.success))
-print('volume = %f'%(angle_structure.volume))
-print('angles = %s'%(str(angle_structure.angles)))
-print('read time = %f seconds'%(angle_structure.read_time))
-print('generation time = %f seconds'%(angle_structure.gen_time))
-print('optimization time = %f seconds'%(angle_structure.opt_time))
+#print('success = %r'%(angle_structure.success))
+#print('volume = %f'%(angle_structure.volume))
+#print('angles = %s'%(str(angle_structure.angles)))
+#print('read time = %f seconds'%(angle_structure.read_time))
+#print('generation time = %f seconds'%(angle_structure.gen_time))
+#print('optimization time = %f seconds'%(angle_structure.opt_time))
 
+"""
+for i in range(1,V):
+    
+    print("%d, %s"%(i, str(positions[i])))
+"""
+for i in range(1,V):
+    
+    for j in range(1,V):
+        
+        if adjacency[i][j] >= 0:
+            
+            x = [positions[i].real, positions[j].real]
+            
+            y = [positions[i].imag, positions[j].imag]
+            
+            plt.plot(x, y)
 
-
-
+plt.show()
 
 
 

@@ -380,6 +380,8 @@ def main():
     except KeyboardInterrupt:
         g.close()
         
+        f.close()
+        
         sys.exit(1)
 
 

@@ -19,3 +19,4 @@ python/circle_packings/sage_muckaround.py
 python/circle_packings/systems.pyc
 python/circle_packings/graph_operations.pyc
 python/circle_packings/queue.pyc
+python/circle_packings/generate_angles_42.py

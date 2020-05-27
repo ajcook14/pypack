@@ -68,7 +68,7 @@ def find_faces(graph):
     vertices: A list of lists, each inner list contains the indices of the faces adjacent to the
     vertex corresponding to the index in the outer list, in clockwise order.
     
-    adjacency: A numpy 2-dimensional ndarray whose [i, j] entry is -1 if there is not edge from
+    adjacency: A numpy 2-dimensional ndarray whose [i, j] entry is -1 if there is no edge from
     vertex i to vertex j, otherwise adjacency[i, j] = f, where f is the index of the face to the
     right of the oriented edge (i, j).
     """
