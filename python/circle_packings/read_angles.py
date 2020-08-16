@@ -1,3 +1,22 @@
+##########################################################################################################
+##########################################################################################################
+##
+##    synopsis:
+##
+##        python read_angles vertices seq_no
+##
+##    arguments:
+##
+##        vertices - number of vertices of the IR polyhedron
+##
+##        seq_no - sequence number of the IR polyhedron ordered by increasing volume
+##
+##########################################################################################################
+##########################################################################################################
+
+
+
+
 import numpy as np
 import sys
 
@@ -29,11 +48,11 @@ def sum_squares(a_list):
         
     return(value)
 
-f = open('./angle_structures/%d'%(int(sys.argv[1])), 'rb')
+f = open('./sorted_volumes/%d'%(int(sys.argv[1])), 'rb')
 
 for i in range(int(sys.argv[2])):
     try:
-        angle_structure = cPickle.load(f)
+        sequence_no, angle_structure = cPickle.load(f)
         
     except EOFError:
         print('angle structure not enumerated or not that many in polyhedra with %s vertices'%(sys.argv[1]))
@@ -160,7 +179,7 @@ def find_geometry(graph, faces, adjacency, tetrahedra, adjacency_triangulated, a
     
     while len(queue) > 0:  # breadth first traversal of faces
         
-        queue.print_queue()
+        #queue.print_queue()
         
         face = queue.serve()
         
@@ -502,8 +521,8 @@ def find_geometry(graph, faces, adjacency, tetrahedra, adjacency_triangulated, a
 
 adjacency = adjacency.tolist()
 
-print('graph = %s'%(angle_structure.graph))
-print('faces = %s'%(faces))
+#print('graph = %s'%(angle_structure.graph))
+#print('faces = %s'%(faces))
 #print('tetrahedra = %s'%(tetrahedra))
 
 edge_lengths, positions, face_angles, radii, centres = find_geometry(angle_structure.graph, faces, adjacency, tetrahedra, adjacency_triangulated, angle_structure.angles)
@@ -536,9 +555,30 @@ for i in range(1,V):
             
             y = [positions[i].imag, positions[j].imag]
             
-            plt.plot(x, y)
+            plt.plot(x, y, 'b')
+
+for i in range(1,V):
+    
+    for j in range(1,V):
+        
+        if adjacency_triangulated[i][j][2] == 0:
+            
+            x = [positions[i].real, positions[j].real]
+            
+            y = [positions[i].imag, positions[j].imag]
+            
+            plt.plot(x, y, 'g')
+
+
+vertices = int(sys.argv[1])
+
+seq_no = int(sys.argv[2])
+
+plt.title('volume = %f, seq_no = %d'%(angle_structure.volume, seq_no))
 
 plt.show()
+
+#plt.savefig('./figures/%d/%d.pdf'%(vertices, seq_no))
 
 
 
